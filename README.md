@@ -1,5 +1,7 @@
 # SnakeGame-with-python-turtle-graphics
 
+To watch how the game works - https://youtu.be/DIzHTsisuxU
+
 In last term, I learnt python programming language. 
 In the last class, our teacher Mantaka Taimullah sir showed implementing a game, called 'Pong', with turtle graphics in the class.
 
