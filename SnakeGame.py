@@ -5,40 +5,40 @@ import random
 class Snake:
     def __init__(self):
         self.length = 1
-        self.direction = 1  #1 means up
-        self.snake_list = [ [0,0], [0, -20] ] #keeping the extra element on purpose
-        self.last_deleted_position = [0, 0]    #keeping it for eating condition
+        self.direction = 1                     #1 means up
+        self.snake_list = [ [0,0], [0, -20] ]  #keeping the extra element on purpose...to 'add' it and increase length after eating
+        self.last_deleted_position = [0, 0]    #keeping it for eating condition...to add the 'tail' again after erasing to increase length
         self.point = 0
 
     def updatePositionForMoving(self):
-        if self.direction == 1:  #up
+        if self.direction == 1:          #up
             self.snake_list.insert(0, [self.snake_list[0][0], self.snake_list[0][1] + 20])
-        elif self.direction == 2: #right
+        elif self.direction == 2:        #right
             self.snake_list.insert(0, [self.snake_list[0][0] + 20, self.snake_list[0][1]])
-        elif self.direction == 3: #down
+        elif self.direction == 3:       #down
             self.snake_list.insert(0, [self.snake_list[0][0], self.snake_list[0][1] - 20])
-        elif self.direction == 4: #left
+        elif self.direction == 4:       #left
             self.snake_list.insert(0, [self.snake_list[0][0] - 20, self.snake_list[0][1]])
 
-        self.last_deleted_position = self.snake_list.pop()
+        self.last_deleted_position = self.snake_list.pop()      #
 
     def up(self):
         if self.direction != 3:
-            self.direction = 1
+            self.direction = 1      #up
 
     def down(self):
         if self.direction != 1:
-            self.direction = 3
+            self.direction = 3      #down
 
     def right(self):
         if self.direction != 4:
-            self.direction = 2
+            self.direction = 2      #right
 
     def left(self):
         if self.direction != 2:
-            self.direction = 4
+            self.direction = 4      #left
 
-    def showTheSnake(self):  #only update head, previous tail
+    def showTheSnake(self):  #draw the new head, erase the previous tail
 
         t = turtle.Turtle()
         t.hideturtle()
@@ -56,7 +56,7 @@ class Snake:
         e.penup()
         e.speed(0)
         e.setposition(x, y)
-        e.color('blue', 'blue')
+        e.color('blue', 'blue')     #actualy erasing by making a turtle with the color of the background color of screen
         e.shape('square')
         e.showturtle()
 
