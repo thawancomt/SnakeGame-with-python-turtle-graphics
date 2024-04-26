@@ -2,109 +2,65 @@ import turtle
 import random
 
 
-class Snake:
+class Snake(turtle.Turtle):
     def __init__(self):
-        self.length = 1
-        self.direction = 1                     #1 means up
-        self.snake_list = [ [0,0], [0, -20] ]  #keeping the extra element on purpose...to 'add' it and increase length after eating
-        self.last_deleted_position = [0, 0]    #keeping it for eating condition...to add the 'tail' again after erasing to increase length
+        super().__init__()
+        self.length = 1 # Initial lenght
+        self.snake_body : list[turtle.Turtle] = [self]
         self.point = 0
 
-    def updatePositionForMoving(self):
-        if self.direction == 1:          #up
-            self.snake_list.insert(0, [self.snake_list[0][0], self.snake_list[0][1] + 20])
-        elif self.direction == 2:        #right
-            self.snake_list.insert(0, [self.snake_list[0][0] + 20, self.snake_list[0][1]])
-        elif self.direction == 3:       #down
-            self.snake_list.insert(0, [self.snake_list[0][0], self.snake_list[0][1] - 20])
-        elif self.direction == 4:       #left
-            self.snake_list.insert(0, [self.snake_list[0][0] - 20, self.snake_list[0][1]])
+        self.create_snake_head()
 
-        self.last_deleted_position = self.snake_list.pop()      #
+    def move_snake(self):
+        for index in range(len(self.snake_body), 1):
+            new_x, new_y = self.snake_body[index - 1].position()
+            self.snake_body[index].goto(new_x, new_y)
 
+        self.forward(10)
     def up(self):
-        if self.direction != 3:
-            self.direction = 1      #up
+        if self.heading() != 90:
+            self.setheading(90)      #up
 
     def down(self):
-        if self.direction != 1:
-            self.direction = 3      #down
+        if self.heading() != 270:
+            self.setheading(270)      #down
 
     def right(self):
-        if self.direction != 4:
-            self.direction = 2      #right
+        if self.heading() != 0:
+            self.setheading(0)   #right
 
     def left(self):
-        if self.direction != 2:
-            self.direction = 4      #left
+        if self.heading() != 180:
+            self.setheading(180)     #left
 
-    def showTheSnake(self):  #draw the new head, erase the previous tail
+    def create_snake_head(self):  #draw the new head, erase the previous tail
+        self.penup()
+        self.color('orange')
+        self.shape('square')
+        self.showturtle()
+
+    def check_eat_condition(self, fd):
+        if self.distance(fd) < 20:
+            return True
+
+    def increase_snake_lenght(self):
+        self.length += 1
 
         t = turtle.Turtle()
-        t.hideturtle()
         t.penup()
         t.color('orange')
         t.shape('square')
-        t.speed(0)
-        t.setposition(self.snake_list[0][0], self.snake_list[0][1])
-        t.showturtle()
-
-        x = self.snake_list[self.length-1][0]
-        y = self.snake_list[self.length-1][1]
-        e = turtle.Turtle()
-        e.hideturtle()
-        e.penup()
-        e.speed(0)
-        e.setposition(x, y)
-        e.color('blue', 'blue')     #actualy erasing by making a turtle with the color of the background color of screen
-        e.shape('square')
-        e.showturtle()
+        t.hideturtle()
+        self.snake_body.append(t)
 
 
-
-    def checkEatCondition(self, fd):
-        if self.snake_list[0][0] == fd.x_cor and self.snake_list[0][1] == fd.y_cor:
-            return True
-
-    def increaseLengthAndUpdateList(self):
-        self.length = self.length + 1
-        self.snake_list.insert(self.length, self.last_deleted_position)
-
-    def checkKillCondition(self):
-        if(self.snake_list[0][0] >= 250 or self.snake_list[0][0] <= -250 or
-                self.snake_list[0][1] >= 250 or self.snake_list[0][1] <= -250):
-            return True
-
-        to_find = self.snake_list[0]
-        l = self.length-1
-        for i in range(1, l):
-            if self.snake_list[i] == to_find:
+    def check_colision_with_tail(self):
+        for seg in self.snake_body[1::]:
+            if self.distance(seg) < 20:
                 return True
 
-        return False
-
     def increasePoint(self):
-        self.point = self.point + 5
-
-
-class Food:
-    def __init__(self):
-        self.x_cor = random.randrange(-240, 241, 20)
-        self.y_cor = random.randrange(-240, 241, 20)
-
-    def showFood(self):
-        self.f = turtle.Turtle()
-        self.f.hideturtle()
-        self.f.penup()
-        self.f.color('yellow')
-        self.f.speed(0)
-        self.f.setposition(self.x_cor, self.y_cor)
-        self.f.shape('circle')
-        self.f.showturtle()
-
-    def erasePreviousFood(self):
-        self.f.clear()
-
+        self.point += 5
 
 
 
@@ -128,17 +84,8 @@ for i in range(4):
     border.right(90)
     border.forward(500)
 
-point_pen = turtle.Turtle()
-point_pen.penup()
-point_pen.speed(0)
-point_pen.color('orange')
-point_pen.hideturtle()
-point_pen.setposition(0, 275)
-point_pen.write("Point: 0", align='center', font=('arial', 20, 'normal') )
-
 snake = Snake()
-food = Food()
-food.showFood()
+
 
 screen.listen()
 screen.onkeypress(snake.up, 'Up')
@@ -146,28 +93,11 @@ screen.onkeypress(snake.down, 'Down')
 screen.onkeypress(snake.right, 'Right')
 screen.onkeypress(snake.left, 'Left')
 
-while True:
+
+a = True
+while a:
     while True:
-        snake.updatePositionForMoving()
-        snake.showTheSnake()
-        if snake.checkKillCondition() == True:
-            break
-        if snake.checkEatCondition(food) == True:
-            food.erasePreviousFood()
-            snake.increaseLengthAndUpdateList()
-            snake.increasePoint()
-            point_pen.clear()
-            point_pen.write("Point: {}" .format(snake.point), align='center', font=('arial', 20, 'normal') )
-            food = Food()
-            food.showFood()
-
-
-    pen_dead = turtle.Turtle()
-    pen_dead.penup()
-    pen_dead.color('red')
-    pen_dead.speed(0)
-    pen_dead.hideturtle()
-    pen_dead.write("DEAD!", align = 'center', font = ('arial', 30, 'normal'))
-    break
+        snake.move_snake()
+        screen.update()
 
 screen.exitonclick()
