@@ -1,5 +1,6 @@
 import random
 import time
+
 from snake import Snake
 from food import Food
 from score import Score
@@ -32,9 +33,10 @@ class Game_Engine():
         # Score
         self.score = Score()
         
-        self.is_game_on = True
-        
         self.game_controls = Game_Controller(self.screen, self.snake)
+        
+        
+        self.is_game_on = True
         
         self.run_game()
             
@@ -45,6 +47,7 @@ class Game_Engine():
             
     def increase_snake_lenght(self):
         new_segment = Snake()
+        new_segment.shape('square')
         new_segment.goto(self.snake.snake_body[-1].position())
         self.snake.snake_body.append(new_segment)
         

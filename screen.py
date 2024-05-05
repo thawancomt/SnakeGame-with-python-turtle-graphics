@@ -14,7 +14,14 @@ class Game_Screen():
         self.game_screensize_to_set_limit = (-300, 300)
         
         # add apple shape
-        self.screen.register_shape('apple_.gif')
+        self.screen.register_shape('apple.gif')
+        
+        # add snake shape, each heading has itself gif file
+        self.screen.register_shape('snake_assets/snake_head_0.gif')
+        self.screen.register_shape('snake_assets/snake_head_90.gif')
+        self.screen.register_shape('snake_assets/snake_head_180.gif')
+        self.screen.register_shape('snake_assets/snake_head_270.gif')
+        
 
         # Draw the border
         self.draw_border()

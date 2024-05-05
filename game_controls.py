@@ -19,13 +19,15 @@ class Game_Controller():
         if self.DEBUG:
             print('Trying up')
         if self.snake.heading() != 270:
-            self.snake.setheading(90)
+            self.snake.setheading(90) # Change the snake heading
+            self.snake.shape('snake_assets/snake_head_90.gif') # Change the shape to correspond heading
 
     def go_snake_down(self):
         if self.DEBUG:
             print('Trying down')
         if self.snake.heading() != 90:
             self.snake.setheading(270)
+            self.snake.shape('snake_assets/snake_head_270.gif')
             
 
     def go_snake_right(self):
@@ -33,10 +35,12 @@ class Game_Controller():
             print('Trying right')
         if self.snake.heading() != 180:
             self.snake.setheading(0)
+            self.snake.shape('snake_assets/snake_head_0.gif')
 
     def go_snake_left(self):
         if self.DEBUG:
             print('Trying left')
         if self.snake.heading() != 0:
             self.snake.setheading(180)
+            self.snake.shape('snake_assets/snake_head_180.gif')
     
