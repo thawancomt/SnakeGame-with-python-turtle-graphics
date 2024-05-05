@@ -1,179 +1,43 @@
-import turtle
 import random
 import time
-
-
-class Snake(turtle.Turtle):
-    def __init__(self):
-        super().__init__()
-        self.length = 1 # Initial lenght
-        self.snake_body : list[turtle.Turtle] = [self]
-        self.point = 0
-
-        self.set_snake_details()
-
-    def set_snake_details(self):  #draw the new head
-        self.penup()
-        self.shape('square')
-        self.color('orange')
-        self.showturtle()
-
-
-    
-        
-class Food(turtle.Turtle):
-    def __init__(self):
-        super().__init__()
-        self.hideturtle()
-        self.penup()
-
-class Score(turtle.Turtle):
-    def __init__(self):
-        super().__init__()
-        self.hideturtle()
-        self.penup()
-        self.goto(0, 300)
-        self.color('white')
-        
-        self.score = 0
-        self.high_score = self.get_high_score()
-        
-        self.write_score()
-    
-    def write_score(self):
-        self.write(f'Score: {self.score}', align='center', font=('Arial', 24, 'normal'))
-
-    def update_score(self):
-        self.clear()
-        self.check_score_greater_than_high_score()
-        self.write_score()
-
-    def increase_score(self):
-        self.score += 1
-        
-    def check_score_greater_than_high_score(self):
-        if self.score > self.high_score:
-            self.color('red')
-            return True
-            
-    def save_high_score(self):
-        if self.check_score_greater_than_high_score():
-            self.high_score = self.score
-            with open('high_score.txt', mode='w') as file:
-                file.write(str(self.high_score))
-    
-    def get_high_score(self):
-        try:
-            with open('high_score.txt', mode='r') as file:
-                self.high_score = int(file.read())
-                
-        except FileNotFoundError:
-            return 0
-        return self.high_score
-
-
-
-
+from snake import Snake
+from food import Food
+from score import Score
+from screen import Game_Screen
+from game_controls import Game_Controller
+from debug import Debug
 
 
 class Game_Engine():
     def __init__(self, DEBUG = False):
         
         self.DEBUG = DEBUG
+        self.difficulty = 0.1
         
-        # Game Scren
-        self.screen = turtle.Screen()
-        self.screen.title('Snake Game')
-        self.screen.tracer(0)
+        # Game Screen
+        self.screen = Game_Screen().screen
         
-        self.screen.bgcolor('blue')
-        self.screen.screensize(700, 700)
-        self.screen.setup(width=700, height=700)
-        
-        # Properties to help with game logic
-        self.game_screensize_to_set_limit = (-300, 300)
-        
-        # add apple shape
-        self.screen.register_shape('apple_.gif')
-        
+             
         # Create Snake
         self.snake = Snake()
-        self.create_snake_body()
-        
+        self.snake.create_snake_body()
         
         # Food
-        
         self.food = Food()
-        self.food.shape('apple_.gif')
-        self.food.shapesize(stretch_wid=2, stretch_len=2)
-        self.food.showturtle()
-
-        # Resize the GIF image
-        self.player_point = 0
+        self.positionate_food()
+        
+        # Score
+        
         
         # Score
         self.score = Score()
         
-        
-        # Initialize the controls
-        self.game_controls()
-        
         self.is_game_on = True
         
+        self.game_controls = Game_Controller(self.screen, self.snake)
         
-        # Draw the border
-        self.draw_border()
-        
-        self.run()
-    
-        
-    def go_snake_up(self):
-        if self.DEBUG:
-            print('Trying up')
-        if self.snake.heading() != 270:
-            self.snake.setheading(90)
-
-    def go_snake_down(self):
-        if self.DEBUG:
-            print('Trying down')
-        if self.snake.heading() != 90:
-            self.snake.setheading(270)
+        self.run_game()
             
-
-    def go_snake_right(self):
-        if self.DEBUG:
-            print('Trying right')
-        if self.snake.heading() != 180:
-            self.snake.setheading(0)
-
-    def go_snake_left(self):
-        if self.DEBUG:
-            print('Trying left')
-        if self.snake.heading() != 0:
-            self.snake.setheading(180)
-        
-    def create_snake_body(self):
-        self.body_positions = [[-20, 0], [-40, 0]]
-        
-        if self.DEBUG:
-            print(f'{len(self.body_positions)} segments added to the snake body at {self.body_positions}')
-        
-        for position in self.body_positions:
-            new_segment = Snake()
-            new_segment.goto(position)
-            self.snake.snake_body.append(new_segment)
-            
-    def draw_border(self):
-        self.border = turtle.Turtle()
-        self.border.hideturtle()
-        self.border.color('white')
-        self.border.penup()
-        self.border.goto(290, 290)
-        self.border.pendown()
-        self.border.pensize(5)
-        for i in range(4):
-            self.border.right(90)
-            self.border.forward(600)
             
     def increase_player_point(self):
         self.score.increase_score()
@@ -196,13 +60,6 @@ class Game_Engine():
         if self.DEBUG:
             print(f'Food position: {self.food.position()}')
 
-            
-    def game_controls(self):
-        self.screen.listen()
-        self.screen.onkeypress(self.go_snake_up, 'Up')
-        self.screen.onkeypress(self.go_snake_down, 'Down')
-        self.screen.onkeypress(self.go_snake_right, 'Right')
-        self.screen.onkeypress(self.go_snake_left, 'Left')
         
     def set_game_over(self):
         self.is_game_on = False
@@ -229,10 +86,7 @@ class Game_Engine():
         for segmente in self.snake.snake_body[1:]:
             if self.snake.distance(segmente) < 15:
                 if self.DEBUG:
-                    print(f'index',self.snake.snake_body.index(self.snake))
-                    print(f'index',self.snake.snake_body.index(segmente))
-                    print(f'distance: {self.snake.distance(segmente)}')
-                    print(segmente.position(), self.snake.position())
+                    pass
                 self.set_game_over()
                 
     def check_all_colisions(self) -> None:
@@ -248,26 +102,18 @@ class Game_Engine():
             
         self.snake.forward(20)
         self.check_all_colisions()
-                
-                
-    def __repr__(self) -> str:
-        return f'Game Engine'
-    
-    def __enter__(self):
-        return self.screen.screensize()
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.screen.bye()
         
-    def run(self):
+    def run_game(self):
         while self.is_game_on:
-            self.screen.update()
+            print(Debug(self.snake, self.screen, self.food).snake_pos())
             self.move_snake()
+            self.screen.update()
             time.sleep(0.1)
-        self.screen.exitonclick()
+        
+        self.screen.mainloop()
 
 
 
 
 
-a = Game_Engine(DEBUG=True)
+a = Game_Engine()
