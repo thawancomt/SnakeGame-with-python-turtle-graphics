@@ -43,17 +43,7 @@ class Game_Engine():
             
     def increase_player_point(self):
         self.score.increase_score()
-        self.score.update_score()
-            
-    def increase_snake_lenght(self):
-        new_segment = Snake()
-        new_segment.shape('square')
-        new_segment.goto(self.snake.snake_body[-1].position())
-        self.snake.snake_body.append(new_segment)
-        
-        if self.DEBUG:
-            print(f'Snake lenght: {len(self.snake.snake_body)}')
-        
+        self.score.update_score()    
             
     def positionate_food(self):
         new_x = random.randint(-280, 280)
@@ -77,7 +67,7 @@ class Game_Engine():
         if self.snake.distance(self.food) < 15:
             self.increase_player_point()
             self.positionate_food()     
-            self.increase_snake_lenght()
+            self.snake.increase_snake_lenght()
             
     def check_collision_with_border(self):
         if self.snake.xcor() > 300  - 20 or self.snake.xcor() < -300 + 20 :
@@ -109,9 +99,10 @@ class Game_Engine():
     def run_game(self):
         while self.is_game_on:
             print(Debug(self.snake, self.screen, self.food).snake_pos())
-            self.move_snake()
             self.screen.update()
+            self.move_snake()
             time.sleep(0.1)
+            self.screen.update()
         
         self.screen.mainloop()
 

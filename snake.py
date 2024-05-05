@@ -10,7 +10,7 @@ class Snake(turtle.Turtle):
     def set_snake_properties(self):  #draw the new head
         self.penup()
         self.shape('snake_assets/snake_head_0.gif')
-        self.color('orange')
+        self.color('green')
         self.showturtle()
     
     def create_snake_body(self):
@@ -18,11 +18,18 @@ class Snake(turtle.Turtle):
         
          
         for position in self.body_positions:
-            new_segment = Snake()
-            new_segment.shape('square')
-            new_segment.goto(position)
-            self.snake_body.append(new_segment)
+            self.increase_snake_lenght()
             
+    def increase_snake_lenght(self):
+        new_segment = Snake()
+        
+        new_segment.shape('circle')
+        new_segment.shapesize(0.8, 0.8)
+        new_segment.color('white')
+        
+        x, y = self.snake_body[-1].position()
+        new_segment.goto(x, y)
+        self.snake_body.append(new_segment)
         
     def __call__(self):
         print('22')
