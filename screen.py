@@ -26,6 +26,7 @@ class Game_Screen():
         # Draw the border
         self.draw_border()
         
+        
     def draw_border(self):
         self.border = turtle.Turtle()
         self.border.hideturtle()

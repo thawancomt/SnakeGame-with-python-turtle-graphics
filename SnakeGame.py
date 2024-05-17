@@ -34,6 +34,7 @@ class Game_Engine():
         self.score = Score()
         
         self.game_controls = Game_Controller(self.screen, self.snake)
+        self.keys_list = self.game_controls.keys_pressed
         
         
         self.is_game_on = True
@@ -91,20 +92,24 @@ class Game_Engine():
         for segmente in range(len(self.snake.snake_body) -1 , 0, -1):
             new_x = self.snake.snake_body[segmente - 1].xcor()
             new_y = self.snake.snake_body[segmente - 1].ycor()
-            self.snake.snake_body[segmente].goto(new_x, new_y)
+            self.snake.snake_body[segmente].teleport(new_x, new_y)
             
         self.snake.forward(20)
         self.check_all_colisions()
         
     def run_game(self):
         while self.is_game_on:
-            print(Debug(self.snake, self.screen, self.food).snake_pos())
-            self.screen.update()
+            if self.DEBUG:
+                print(Debug(self.snake, self.screen, self.food).snake_pos())
+            
+            if self.keys_list:
+                if self.DEBUG:
+                    print(f'Keys pressed: {self.keys_list}')
+                self.keys_list.pop(0)
+                
             self.move_snake()
-            time.sleep(0.1)
             self.screen.update()
-        
-        self.screen.mainloop()
+            time.sleep(self.difficulty)
 
 
 

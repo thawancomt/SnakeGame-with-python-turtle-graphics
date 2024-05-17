@@ -12,6 +12,7 @@ class Snake(turtle.Turtle):
         self.shape('snake_assets/snake_head_0.gif')
         self.color('green')
         self.showturtle()
+        self.speed(1)
     
     def create_snake_body(self):
         self.body_positions = [[-20, 0], [-40, 0]]
