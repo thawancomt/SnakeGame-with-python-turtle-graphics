@@ -5,7 +5,6 @@ from food import Food
 from score import Score
 from screen import Game_Screen
 from game_controls import Game_Controller
-from debug import Debug
 
 
 class Game_Engine:
@@ -41,49 +40,12 @@ class Game_Engine:
         self.game_screen = Game_Screen()
         self.screen = self.game_screen.screen
 
-        self.start_screen()
+        self.show_start_screen()
 
-    def start_screen(self):
-        """Sets the initial screen properties for the game."""
+    def show_start_screen(self):
+        self.game_screen.show_start_screen(self.start_game)
 
-        self.screen.tracer(0)
-
-        self.screen.bgcolor("#1fdb83")
-
-        self.screen.title("Snake Game")
-
-        # instructions text are using y 0 to -30
-        # high score gonna use y at -50
-
-        def create_instructions_text():
-            start_instructions = turtle.Turtle()
-            start_instructions.penup()
-            start_instructions.goto(0, 0)
-            start_instructions.color("white")
-            start_instructions.write("Press Enter to start or q to quit", align="center", font=("Arial", 24, "normal"))
-            start_instructions.goto(0, -30)
-            start_instructions.write("Use arrow keys to control the snake", align="center", font=("Arial", 16, "normal"))
-            start_instructions.hideturtle()
-
-        def create_high_score_text():
-            high_score_turtle = turtle.Turtle()
-            high_score_turtle.penup()
-            high_score_turtle.goto(0, -60)
-            high_score_turtle.color("white")
-            high_score_turtle.write(f"High Score: {Score().get_high_score()}", align="center", font=("Arial", 16, "normal"))
-            high_score_turtle.hideturtle()
-
-        create_instructions_text()
-        create_high_score_text()
-
-        self.screen.listen()
-
-        self.screen.onkeypress(self.game_start, "Return")
-        self.screen.onkeypress(lambda : self.screen.bye(), "q")
-
-        self.screen.update()
-
-    def game_start(self):
+    def start_game(self):
         """Initializes the game state and starts the game loop."""
         self.screen.clear()
         self.screen.tracer(0)
@@ -103,6 +65,8 @@ class Game_Engine:
 
         # Score
         self.score = Score()
+
+        self.score.write_score()
 
         self.game_controls = Game_Controller(self.screen, self.snake)
         self.keys_list = self.game_controls.keys_pressed
@@ -148,7 +112,8 @@ class Game_Engine:
 
         self.screen.clear()
 
-        self.start_screen()
+        # TODO: Show game over screen with score and high score
+        self.show_start_screen()
 
         self.is_game_on = False
 

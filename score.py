@@ -18,7 +18,7 @@ class Score(turtle.Turtle):
         self.score = 0
         self.high_score = self.get_high_score()
         
-        self.write_score()
+        
     
     def write_score(self):
         """Writes the current score to the screen."""
