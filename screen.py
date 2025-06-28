@@ -1,6 +1,13 @@
 import turtle
 class Game_Screen():
+    """
+    A class to manage the game screen.
+    
+    This class is responsible for creating the game screen, setting up its
+    properties, and drawing the game border.
+    """
     def __init__(self):
+        """Initializes the Game_Screen object."""
         # Game Screen
         self.screen = turtle.Screen()
         self.screen.title('Snake Game')
@@ -33,6 +40,7 @@ class Game_Screen():
         
         
     def draw_border(self):
+        """Draws the border of the game screen."""
         self.border = turtle.Turtle()
         self.border.hideturtle()
         self.border.color('white')

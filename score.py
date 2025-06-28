@@ -1,7 +1,14 @@
 import turtle
 
 class Score(turtle.Turtle):
+    """
+    A class to manage the score in the Snake game.
+    
+    This class inherits from the turtle.Turtle class and is responsible
+    for displaying and updating the score, as well as tracking the high score.
+    """
     def __init__(self):
+        """Initializes the Score object."""
         super().__init__()
         self.hideturtle()
         self.penup()
@@ -14,28 +21,34 @@ class Score(turtle.Turtle):
         self.write_score()
     
     def write_score(self):
+        """Writes the current score to the screen."""
         self.write(f'Score: {self.score}', align='center', font=('Arial', 24, 'bold'))
 
     def update_score(self):
+        """Updates the score display."""
         self.clear()
         self.check_score_greater_than_high_score()
         self.write_score()
 
     def increase_score(self):
+        """Increases the score by 1."""
         self.score += 1
         
     def check_score_greater_than_high_score(self):
+        """Checks if the current score is greater than the high score."""
         if self.score > self.high_score:
             self.color('red')
             return True
             
     def save_high_score(self):
+        """Saves the high score to a file."""
         if self.check_score_greater_than_high_score():
             self.high_score = self.score
             with open('high_score.txt', mode='w') as file:
                 file.write(str(self.high_score))
     
     def get_high_score(self):
+        """Gets the high score from a file."""
         try:
             with open('high_score.txt', mode='r') as file:
                 self.high_score = int(file.read())

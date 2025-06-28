@@ -10,7 +10,21 @@ from debug import Debug
 
 
 class Game_Engine():
+    """
+    The main engine for the Snake game.
+    
+    This class is responsible for initializing and running the game,
+    managing the game state, and handling game logic such as collisions,
+    scoring, and player input.
+    """
     def __init__(self, DEBUG = False):
+        """
+        Initializes the Game_Engine.
+
+        Args:
+            DEBUG (bool, optional): Whether to run the game in debug mode. 
+            Defaults to False.
+        """
         
         self.DEBUG = DEBUG
         self.DIFFICULTY = 0.13
@@ -42,12 +56,14 @@ class Game_Engine():
             
             
     def increase_player_point(self):
+        """Increases the player's score by 1 and updates the score display."""
         self.score.increase_score()
         self.score.update_score()    
             
     def positionate_food(self):
-        new_x = random.randint(-280, 280)
-        new_y = random.randint(-280, 280)
+        """Places the food at a random position on the screen."""
+        new_x = random.randint(self.game_screen.bounding_box_limit["width"] * -1, self.game_screen.bounding_box_limit["width"])
+        new_y = random.randint(self.game_screen.bounding_box_limit["height"] * -1, self.game_screen.bounding_box_limit["height"])
         self.food.goto(new_x, new_y)
         
         if self.DEBUG:
@@ -55,6 +71,7 @@ class Game_Engine():
 
         
     def set_game_over(self):
+        """Ends the game and displays the game over screen."""
         self.is_game_on = False
         
         self.screen.bgcolor('black')
@@ -64,18 +81,21 @@ class Game_Engine():
         
         
     def check_colision_with_food(self):
+        """Checks for collision between the snake and the food."""
         if self.snake.distance(self.food) < 15:
             self.increase_player_point()
             self.positionate_food()     
             self.snake.increase_snake_lenght()
             
     def check_colision_with_border(self):
+        """Checks for collision between the snake and the screen border."""
         if self.snake.xcor() > self.game_screen.bounding_box_limit["width"]  or self.snake.xcor() < -self.game_screen.bounding_box_limit["width"] :
             self.set_game_over()
         elif self.snake.ycor() > self.game_screen.bounding_box_limit["height"] or self.snake.ycor() < -self.game_screen.bounding_box_limit["height"]  :
             self.set_game_over()
             
     def check_colision_with_tail(self):
+        """Checks for collision between the snake and its own tail."""
         for segment in self.snake.snake_body[1:]:
             if round(self.snake.distance(segment)) < self.FOWARD_AMOUNT:
                 if self.DEBUG:
@@ -83,11 +103,13 @@ class Game_Engine():
                 self.set_game_over()
                 
     def check_all_colisions(self) -> None:
+        """Checks for all possible collisions in the game."""
         self.check_colision_with_tail()
         self.check_colision_with_border()
         self.check_colision_with_food()
 
     def move_snake(self):
+        """Moves the snake forward and checks for collisions."""
         for segmente in range(len(self.snake.snake_body) -1 , 0, -1):
             new_x = self.snake.snake_body[segmente - 1].xcor()
             new_y = self.snake.snake_body[segmente - 1].ycor()
@@ -97,6 +119,7 @@ class Game_Engine():
         self.check_all_colisions()
         
     def run_game(self):
+        """Starts and runs the main game loop."""
         while self.is_game_on:
             if self.DEBUG:
                 print(Debug(self.snake, self.screen, self.food).snake_pos())
@@ -106,6 +129,7 @@ class Game_Engine():
                     print(f'Keys pressed: {self.keys_list}')
                 self.keys_list.pop(0)
                 
+            self.screen.update()
             self.move_snake()
             self.screen.update()
             time.sleep(self.DIFFICULTY)
