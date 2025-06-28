@@ -18,7 +18,7 @@ To run the game, ensure you have Python installed (version 3.x recommended).
 
 2.  **Navigate to the project directory** in your terminal or command prompt:
     ```bash
-    cd C:\Users\thawa\Downloads\SnakeGame-with-python-turtle-graphics
+    cd your/project/directory
     ```
 
 3.  **Run the main game file:**
@@ -52,4 +52,4 @@ Want to change the game's appearance, speed, or other visual elements? Refer to 
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [Apache License 2.0](LICENSE).
