@@ -68,7 +68,7 @@ class Game_Engine:
         def create_high_score_text():
             high_score_turtle = turtle.Turtle()
             high_score_turtle.penup()
-            high_score_turtle.goto(0, -50)
+            high_score_turtle.goto(0, -60)
             high_score_turtle.color("white")
             high_score_turtle.write(f"High Score: {Score().get_high_score()}", align="center", font=("Arial", 16, "normal"))
             high_score_turtle.hideturtle()
@@ -79,7 +79,7 @@ class Game_Engine:
         self.screen.listen()
 
         self.screen.onkeypress(self.game_start, "Return")
-        self.screen.onkeypress(lambda : self.set_game_over(), "q")
+        self.screen.onkeypress(lambda : self.screen.bye(), "q")
 
         self.screen.update()
 
