@@ -1,5 +1,4 @@
 import random
-import turtle
 from snake import Snake
 from food import Food
 from score import Score
@@ -170,14 +169,11 @@ class Game_Engine:
         self.frame_counter += 1
         self.screen.update()
 
-
         if self.frame_counter % self.render_per_logic == 0:
             if self.keys_list:
                 self.keys_list.pop(0)
             self.move_snake()
             self.check_all_colisions()
-
-        self.screen.update()
 
         if self.is_game_on:
             self.screen.ontimer(
