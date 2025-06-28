@@ -168,11 +168,12 @@ class Game_Engine:
         """Runs the game loop updating the screen and checking all logic."""
 
         self.frame_counter += 1
+        self.screen.update()
 
-        if self.keys_list:
-            self.keys_list.pop(0)
 
-        if self.frame_counter % 2 == 0:
+        if self.frame_counter % self.render_per_logic == 0:
+            if self.keys_list:
+                self.keys_list.pop(0)
             self.move_snake()
             self.check_all_colisions()
 

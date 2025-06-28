@@ -43,6 +43,7 @@ class Snake(turtle.Turtle):
     def increase_snake_length(self):
         """Increases the length of the snake by one segment."""
         new_segment = turtle.Turtle()
+        new_segment.penup()
         
         new_segment.shape('circle')
         new_segment.shapesize(self.body_dimensions["width"], self.body_dimensions["height"])
