@@ -1,10 +1,10 @@
 import random
+import turtle
 from snake import Snake
 from food import Food
 from score import Score
 from screen import Game_Screen
 from game_controls import Game_Controller
-from debug import Debug
 
 
 class Game_Engine:
@@ -40,6 +40,22 @@ class Game_Engine:
         self.game_screen = Game_Screen()
         self.screen = self.game_screen.screen
 
+        self.show_start_screen()
+
+    def show_start_screen(self):
+        self.game_screen.show_start_screen(self.start_game)
+
+    def start_game(self):
+        """Initializes the game state and starts the game loop."""
+        self.screen.clear()
+        self.screen.tracer(0)
+        self.game_screen.draw_border()
+
+        self.is_game_on = True
+
+        self.screen.title("Snake Game")
+        self.screen.bgcolor("#1fdb83")
+
         # Create Snake
         self.snake = Snake()
 
@@ -50,20 +66,14 @@ class Game_Engine:
         # Score
         self.score = Score()
 
+        self.score.write_score()
+
         self.game_controls = Game_Controller(self.screen, self.snake)
         self.keys_list = self.game_controls.keys_pressed
 
         self.is_game_on = True
 
-        if self.DEBUG:
-            self.DEBUG_LOGGER = Debug(
-                snake=self.snake, screen=self.screen, food=self.food
-            )
-            self.DEBUG_LOGGER.snake_pos()
-            self.DEBUG_LOGGER.snake_body()
-            self.DEBUG_LOGGER.food_pos()
-
-        
+        self.game_loop()
 
     def increase_player_point(self):
         """Increases the player's score by 1 and updates the score display."""
@@ -100,12 +110,19 @@ class Game_Engine:
         for segment in self.snake.snake_body:
             segment.hideturtle()
 
+        self.screen.clear()
+
+        # TODO: Show game over screen with score and high score
+        self.show_start_screen()
+
+        self.is_game_on = False
+
     def check_colision_with_food(self):
         """Checks for collision between the snake and the food."""
         if self.snake.distance(self.food) < 15:
             self.increase_player_point()
             self.positionate_food()
-            self.snake.increase_snake_lenght()
+            self.snake.increase_snake_length()
 
     def check_colision_with_border(self):
         """Checks for collision between the snake and the screen border."""
@@ -158,17 +175,17 @@ class Game_Engine:
         if self.frame_counter % 2 == 0:
             self.move_snake()
             self.check_all_colisions()
-        
+
         self.screen.update()
 
-        self.screen.ontimer(
-            self.game_loop,
-            round(1000 / 120),  # 120 FPS
-        )
+        if self.is_game_on:
+            self.screen.ontimer(
+                self.game_loop,
+                round(1000 / 120),  # 120 FPS
+            )
 
 
 a = Game_Engine(DEBUG=True)
 
-a.game_loop()
 
 a.screen.mainloop()

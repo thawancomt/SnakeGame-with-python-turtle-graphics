@@ -20,9 +20,11 @@ class Snake(turtle.Turtle):
             "height": 1  # Increased height
         }
 
+        self.INITIAL_LENGTH = 3
+
         self.set_snake_properties()
 
-        # Remove turtlesize, use shapesize in set_snake_properties
+        self.create_snake_body()
 
     
     def set_snake_properties(self):
@@ -31,22 +33,19 @@ class Snake(turtle.Turtle):
         self.shape('snake_assets/snake_head_0.gif')
         self.color('green')
         self.showturtle()
-        self.speed(1)
     
-    def create_snake_body(self,):
+    def create_snake_body(self):
         """Creates the initial body of the snake."""
         # To initial snake body segments
-        self.body_positions = [[-20, 0], [-40, 0]]
+        for _ in range(self.INITIAL_LENGTH):
+            self.increase_snake_length()
 
-        for _ in self.body_positions:
-            self.increase_snake_lenght()
-            
-    def increase_snake_lenght(self):
+    def increase_snake_length(self):
         """Increases the length of the snake by one segment."""
-        new_segment = Snake()
+        new_segment = turtle.Turtle()
         
         new_segment.shape('circle')
-        new_segment.shapesize(self.body_dimensions["width"] , self.body_dimensions["height"])
+        new_segment.shapesize(self.body_dimensions["width"], self.body_dimensions["height"])
         new_segment.color('white')
         
         x, y = self.snake_body[-1].position()
