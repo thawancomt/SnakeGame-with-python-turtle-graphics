@@ -1,3 +1,4 @@
+import json
 import turtle
 
 class Score(turtle.Turtle):
@@ -44,15 +45,19 @@ class Score(turtle.Turtle):
         """Saves the high score to a file."""
         if self.check_score_greater_than_high_score():
             self.high_score = self.score
-            with open('high_score.txt', mode='w') as file:
-                file.write(str(self.high_score))
+            with open('high_score.json', mode='w') as file:
+                file.write(
+                    json.dumps({
+                        "high_score": self.high_score,
+                    }, indent=4)
+                )
     
     def get_high_score(self):
         """Gets the high score from a file."""
         try:
-            with open('high_score.txt', mode='r') as file:
-                self.high_score = int(file.read())
-                
+            with open('high_score.json', mode='r') as file:
+                data = json.load(file)
+                return data.get('high_score', 0)
         except FileNotFoundError:
             print('High score file not found. Setting high score to 0.')
             return 0
