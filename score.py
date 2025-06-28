@@ -41,6 +41,7 @@ class Score(turtle.Turtle):
                 self.high_score = int(file.read())
                 
         except FileNotFoundError:
+            print('High score file not found. Setting high score to 0.')
             return 0
         return self.high_score
     

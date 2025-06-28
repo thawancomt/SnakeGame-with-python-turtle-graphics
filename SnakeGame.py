@@ -13,10 +13,12 @@ class Game_Engine():
     def __init__(self, DEBUG = False):
         
         self.DEBUG = DEBUG
-        self.difficulty = 0.1
+        self.DIFFICULTY = 0.13
+        self.FOWARD_AMOUNT = 20
         
         # Game Screen
-        self.screen = Game_Screen().screen
+        self.game_screen = Game_Screen()
+        self.screen = self.game_screen.screen
         
              
         # Create Snake
@@ -26,9 +28,6 @@ class Game_Engine():
         # Food
         self.food = Food()
         self.positionate_food()
-        
-        # Score
-        
         
         # Score
         self.score = Score()
@@ -64,37 +63,37 @@ class Game_Engine():
         self.score.save_high_score()
         
         
-    def check_collision_with_food(self):
+    def check_colision_with_food(self):
         if self.snake.distance(self.food) < 15:
             self.increase_player_point()
             self.positionate_food()     
             self.snake.increase_snake_lenght()
             
-    def check_collision_with_border(self):
-        if self.snake.xcor() > 300  - 20 or self.snake.xcor() < -300 + 20 :
+    def check_colision_with_border(self):
+        if self.snake.xcor() > self.game_screen.bounding_box_limit["width"]  or self.snake.xcor() < -self.game_screen.bounding_box_limit["width"] :
             self.set_game_over()
-        elif self.snake.ycor() > 300  - 20 or self.snake.ycor() < -300 + 20 :
+        elif self.snake.ycor() > self.game_screen.bounding_box_limit["height"] or self.snake.ycor() < -self.game_screen.bounding_box_limit["height"]  :
             self.set_game_over()
             
     def check_colision_with_tail(self):
-        for segmente in self.snake.snake_body[1:]:
-            if self.snake.distance(segmente) < 15:
+        for segment in self.snake.snake_body[1:]:
+            if round(self.snake.distance(segment)) < self.FOWARD_AMOUNT:
                 if self.DEBUG:
-                    pass
+                    print(f'Collision with tail at position: {segment.position()}, distance: {self.snake.distance(segment)}, snake position: {self.snake.position()}')
                 self.set_game_over()
                 
     def check_all_colisions(self) -> None:
         self.check_colision_with_tail()
-        self.check_collision_with_border()
-        self.check_collision_with_food()
-                
+        self.check_colision_with_border()
+        self.check_colision_with_food()
+
     def move_snake(self):
         for segmente in range(len(self.snake.snake_body) -1 , 0, -1):
             new_x = self.snake.snake_body[segmente - 1].xcor()
             new_y = self.snake.snake_body[segmente - 1].ycor()
-            self.snake.snake_body[segmente].teleport(new_x, new_y)
+            self.snake.snake_body[segmente].goto(new_x, new_y)
             
-        self.snake.forward(20)
+        self.snake.forward(self.FOWARD_AMOUNT)
         self.check_all_colisions()
         
     def run_game(self):
@@ -109,10 +108,10 @@ class Game_Engine():
                 
             self.move_snake()
             self.screen.update()
-            time.sleep(self.difficulty)
+            time.sleep(self.DIFFICULTY)
 
 
 
 
 
-a = Game_Engine()
+a = Game_Engine(DEBUG=True)

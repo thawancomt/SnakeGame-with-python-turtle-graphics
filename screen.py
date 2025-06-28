@@ -8,10 +8,15 @@ class Game_Screen():
         
         self.screen.bgcolor('blue')
         self.screen.screensize(700, 700)
-        self.screen.setup(width=700, height=700)
-        
+        self.screen.setup(width=self.screen.screensize()[0], height=self.screen.screensize()[1])
+
+        self.bounding_box_limit = {
+            "width" : self.screen.screensize()[0] / 2 - 40,
+            "height" : self.screen.screensize()[1] / 2 - 40
+        }
+
         # Properties to help with game logic
-        self.game_screensize_to_set_limit = (-300, 300)
+        # self.game_screensize_to_set_limit = (-300, 300)
         
         # add apple shape
         self.screen.register_shape('apple.gif')
@@ -31,10 +36,12 @@ class Game_Screen():
         self.border = turtle.Turtle()
         self.border.hideturtle()
         self.border.color('white')
-        self.border.penup()
-        self.border.goto(290, 290)
+        self.border.penup() 
+        self.border.goto(self.bounding_box_limit["width"], self.bounding_box_limit["height"])
         self.border.pendown()
         self.border.pensize(5)
+
+        # Draw the square border
         for i in range(4):
             self.border.right(90)
-            self.border.forward(600)
+            self.border.forward(self.bounding_box_limit["width"] * 2)
