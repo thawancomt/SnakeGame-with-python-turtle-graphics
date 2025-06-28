@@ -1,4 +1,5 @@
 import random
+import turtle
 from snake import Snake
 from food import Food
 from score import Score
@@ -40,6 +41,59 @@ class Game_Engine:
         self.game_screen = Game_Screen()
         self.screen = self.game_screen.screen
 
+        self.start_screen()
+
+    def start_screen(self):
+        """Sets the initial screen properties for the game."""
+
+        self.screen.tracer(0)
+
+        self.screen.bgcolor("#1fdb83")
+
+        self.screen.title("Snake Game")
+
+        # instructions text are using y 0 to -30
+        # high score gonna use y at -50
+
+        def create_instructions_text():
+            start_instructions = turtle.Turtle()
+            start_instructions.penup()
+            start_instructions.goto(0, 0)
+            start_instructions.color("white")
+            start_instructions.write("Press Enter to start or q to quit", align="center", font=("Arial", 24, "normal"))
+            start_instructions.goto(0, -30)
+            start_instructions.write("Use arrow keys to control the snake", align="center", font=("Arial", 16, "normal"))
+            start_instructions.hideturtle()
+
+        def create_high_score_text():
+            high_score_turtle = turtle.Turtle()
+            high_score_turtle.penup()
+            high_score_turtle.goto(0, -50)
+            high_score_turtle.color("white")
+            high_score_turtle.write(f"High Score: {Score().get_high_score()}", align="center", font=("Arial", 16, "normal"))
+            high_score_turtle.hideturtle()
+
+        create_instructions_text()
+        create_high_score_text()
+
+        self.screen.listen()
+
+        self.screen.onkeypress(self.game_start, "Return")
+        self.screen.onkeypress(lambda : self.set_game_over(), "q")
+
+        self.screen.update()
+
+    def game_start(self):
+        """Initializes the game state and starts the game loop."""
+        self.screen.clear()
+        self.screen.tracer(0)
+        self.game_screen.draw_border()
+
+        self.is_game_on = True
+
+        self.screen.title("Snake Game")
+        self.screen.bgcolor("#1fdb83")
+
         # Create Snake
         self.snake = Snake()
 
@@ -55,15 +109,7 @@ class Game_Engine:
 
         self.is_game_on = True
 
-        if self.DEBUG:
-            self.DEBUG_LOGGER = Debug(
-                snake=self.snake, screen=self.screen, food=self.food
-            )
-            self.DEBUG_LOGGER.snake_pos()
-            self.DEBUG_LOGGER.snake_body()
-            self.DEBUG_LOGGER.food_pos()
-
-        
+        self.game_loop()
 
     def increase_player_point(self):
         """Increases the player's score by 1 and updates the score display."""
@@ -100,12 +146,18 @@ class Game_Engine:
         for segment in self.snake.snake_body:
             segment.hideturtle()
 
+        self.screen.clear()
+
+        self.start_screen()
+
+        self.is_game_on = False
+
     def check_colision_with_food(self):
         """Checks for collision between the snake and the food."""
         if self.snake.distance(self.food) < 15:
             self.increase_player_point()
             self.positionate_food()
-            self.snake.increase_snake_lenght()
+            self.snake.increase_snake_length()
 
     def check_colision_with_border(self):
         """Checks for collision between the snake and the screen border."""
@@ -158,17 +210,17 @@ class Game_Engine:
         if self.frame_counter % 2 == 0:
             self.move_snake()
             self.check_all_colisions()
-        
+
         self.screen.update()
 
-        self.screen.ontimer(
-            self.game_loop,
-            round(1000 / 120),  # 120 FPS
-        )
+        if self.is_game_on:
+            self.screen.ontimer(
+                self.game_loop,
+                round(1000 / 120),  # 120 FPS
+            )
 
 
 a = Game_Engine(DEBUG=True)
 
-a.game_loop()
 
 a.screen.mainloop()

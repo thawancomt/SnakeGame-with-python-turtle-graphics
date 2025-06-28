@@ -169,3 +169,23 @@ To set the velocity/difficulty of the game:
 ```python
     self.LOGIC_FPS = 10  # Logic per second / How many times the game logic is processed per second example move snake
 ```
+
+## 8 Initial Snake Length
+- **file** `snake.py`
+
+To change the initial snake length, change the following constant in the snake Class:
+```python
+class Snake(turtle.Turtle):
+    def __init__():
+        self.INITIAL_LENGTH = 3 # the amount you wish snake starts with
+        
+```
+
+Btw, the function that start the `INITIAL_LENGTH` is the `create_snake_body`:
+```python
+def create_snake_body(self):
+    """Creates the initial body of the snake."""
+    # To initial snake body segments
+    for _ in range(self.INITIAL_LENGTH):
+        self.increase_snake_length()
+```

@@ -29,12 +29,7 @@ class Game_Screen():
         self.screen.register_shape('snake_assets/snake_head_90.gif')
         self.screen.register_shape('snake_assets/snake_head_180.gif')
         self.screen.register_shape('snake_assets/snake_head_270.gif')
-        
 
-        # Draw the border
-        self.draw_border()
-        
-        
     def draw_border(self):
         """Draws the border of the game screen."""
         self.border = turtle.Turtle()
