@@ -113,7 +113,7 @@ class Game_Engine:
         self.screen.clear()
 
         # TODO: Show game over screen with score and high score
-        self.show_start_screen()
+        self.game_screen.show_game_over_screen(score=self.score.score, callback=lambda: self.start_game())
 
         self.is_game_on = False
 

@@ -1,6 +1,7 @@
 import turtle
 from score import Score
 
+
 class Game_Screen:
     """
     A class to manage the game screen.
@@ -34,6 +35,7 @@ class Game_Screen:
         self.screen.register_shape("snake_assets/snake_head_90.gif")
         self.screen.register_shape("snake_assets/snake_head_180.gif")
         self.screen.register_shape("snake_assets/snake_head_270.gif")
+        self.screen.register_shape("assets/gameover.gif")
 
     def show_start_screen(self, callback):
         """
@@ -104,6 +106,53 @@ class Game_Screen:
 
         self.screen.onkeypress(lambda: callback(), "Return")
         self.screen.onkeypress(lambda: self.screen.bye(), "q")
+
+        self.screen.update()
+
+    def show_game_over_screen(self, score=0, callback=None):
+        """ "Sets up the game over screen with final score display."""
+
+        self.screen.clear()
+        self.screen.tracer(0)
+        self.screen.bgcolor("black")
+        self.screen.title("Game Over")
+
+        def create_game_over_text_and_animation():
+            animation = turtle.Turtle()
+            animation.penup()
+            animation.goto(0, 0)
+            animation.shape("assets/gameover.gif")
+
+            game_over_turtle = turtle.Turtle()
+            game_over_turtle.penup()
+            game_over_turtle.goto(0, -self.bounding_box_limit["height"] + 50)
+            game_over_turtle.color("white")
+            game_over_turtle.write(
+                "Press Enter to Restart or Q to Quit",
+                align="center",
+                font=("Press Start 2P", 24, "normal"),
+            )
+            game_over_turtle.hideturtle()
+
+            self.screen.listen()
+
+            self.screen.onkeypress(lambda: callback(), "Return")
+            self.screen.onkeypress(lambda: self.screen.bye(), "q")
+
+        def create_final_score_text():
+            final_score_turtle = turtle.Turtle()
+            final_score_turtle.penup()
+            final_score_turtle.goto(0, -self.bounding_box_limit["height"] + 110)
+            final_score_turtle.color("white")
+            final_score_turtle.write(
+                f"Final Score: {score}",
+                align="center",
+                font=("Press Start 2P", 24, "normal"),
+            )
+            final_score_turtle.hideturtle()
+
+        create_game_over_text_and_animation()
+        create_final_score_text()
 
         self.screen.update()
 
