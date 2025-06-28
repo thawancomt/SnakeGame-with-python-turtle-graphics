@@ -21,10 +21,6 @@ class Game_Screen():
             "width" : self.screen.screensize()[0] / 2 - 40,
             "height" : self.screen.screensize()[1] / 2 - 40
         }
-
-        # Properties to help with game logic
-        # self.game_screensize_to_set_limit = (-300, 300)
-        
         # add apple shape
         self.screen.register_shape('apple.gif')
         
