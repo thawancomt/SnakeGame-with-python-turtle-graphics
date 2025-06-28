@@ -24,8 +24,8 @@ class Game_Screen:
         )
 
         self.bounding_box_limit = {
-            "width": self.screen.screensize()[0] / 2 - 40,
-            "height": self.screen.screensize()[1] / 2 - 40,
+            "width": self.screen.screensize()[0] / 2 - 60,
+            "height": self.screen.screensize()[1] / 2 - 60,
         }
         # add apple shape
         self.screen.register_shape("apple.gif")
