@@ -39,13 +39,16 @@ class Game_Engine:
         self.game_screen = Game_Screen()
         self.screen = self.game_screen.screen
 
+        # Display the start screen and wait for user input to begin the game
         self.show_start_screen()
 
+    # --- Game State Management ---
     def show_start_screen(self):
+        """Displays the initial start screen and sets up input for starting the game."""
         self.game_screen.show_start_screen(self.start_game)
 
     def start_game(self):
-        """Initializes the game state and starts the game loop."""
+        """Initializes the game state and starts the main game loop."""
         self.screen.clear()
         self.screen.tracer(0)
         self.game_screen.draw_border()
@@ -55,32 +58,45 @@ class Game_Engine:
         self.screen.title("Snake Game")
         self.screen.bgcolor("#1fdb83")
 
-        # Create Snake
+        # Initialize game entities
         self.snake = Snake()
-
-        # Food
         self.food = Food()
         self.positionate_food()
-
-        # Score
         self.score = Score()
-
         self.score.write_score()
-
         self.game_controls = Game_Controller(self.screen, self.snake)
         self.keys_list = self.game_controls.keys_pressed
 
-        self.is_game_on = True
-
+        # Begin the game loop
         self.game_loop()
 
+    def set_game_over(self):
+        """Ends the game, saves the high score, and displays the game over screen."""
+        self.screen.bgcolor("black")
+        self.screen.title("Game Over")
+
+        self.score.save_high_score()
+
+        # Hide game entities
+        self.snake.hideturtle()
+        self.food.hideturtle()
+        for segment in self.snake.snake_body:
+            segment.hideturtle()
+
+        self.screen.clear()
+
+        # Show game over screen with option to restart
+        self.game_screen.show_game_over_screen(score=self.score.score, callback=lambda: self.start_game())
+        self.is_game_on = False
+
+    # --- Game Logic ---
     def increase_player_point(self):
-        """Increases the player's score by 1 and updates the score display."""
+        """Increases the player's score and updates the display."""
         self.score.increase_score()
         self.score.update_score()
 
     def positionate_food(self):
-        """Places the food at a random position on the screen."""
+        """Places the food at a random position within the game boundaries."""
         new_x = random.randint(
             round(self.game_screen.bounding_box_limit["width"] * -1),
             round(self.game_screen.bounding_box_limit["width"]),
@@ -94,37 +110,16 @@ class Game_Engine:
         if self.DEBUG:
             print(f"Food position: {self.food.position()}")
 
-    def set_game_over(self):
-        """Ends the game and displays the game over screen."""
-
-        self.screen.bgcolor("black")
-        self.screen.title("Game Over")
-
-        self.score.save_high_score()
-
-        # Hide the snake and food
-        self.snake.hideturtle()
-        self.food.hideturtle()
-
-        for segment in self.snake.snake_body:
-            segment.hideturtle()
-
-        self.screen.clear()
-
-        # TODO: Show game over screen with score and high score
-        self.game_screen.show_game_over_screen(score=self.score.score, callback=lambda: self.start_game())
-
-        self.is_game_on = False
-
+    # --- Collision Detection ---
     def check_colision_with_food(self):
-        """Checks for collision between the snake and the food."""
+        """Checks for collision between the snake's head and the food."""
         if self.snake.distance(self.food) < 15:
             self.increase_player_point()
             self.positionate_food()
             self.snake.increase_snake_length()
 
     def check_colision_with_border(self):
-        """Checks for collision between the snake and the screen border."""
+        """Checks for collision between the snake's head and the screen borders."""
         if (
             self.snake.xcor() > self.game_screen.bounding_box_limit["width"]
             or self.snake.xcor() < -self.game_screen.bounding_box_limit["width"]
@@ -137,7 +132,7 @@ class Game_Engine:
             self.set_game_over()
 
     def check_colision_with_tail(self):
-        """Checks for collision between the snake and its own tail."""
+        """Checks for collision between the snake's head and its own body segments."""
         for segment in self.snake.snake_body[1:]:
             if round(self.snake.distance(segment)) < self.FOWARD_AMOUNT:
                 if self.DEBUG:
@@ -147,42 +142,49 @@ class Game_Engine:
                 self.set_game_over()
 
     def check_all_colisions(self) -> None:
-        """Checks for all possible collisions in the game."""
+        """Orchestrates all collision checks (food, border, tail)."""
         self.check_colision_with_tail()
         self.check_colision_with_border()
         self.check_colision_with_food()
 
+    # --- Snake Movement ---
     def move_snake(self):
-        """Moves the snake forward and checks for collisions."""
-
+        """Moves the snake forward by updating the positions of its segments."""
         for segment in range(len(self.snake.snake_body) - 1, 0, -1):
             new_x = self.snake.snake_body[segment - 1].xcor()
             new_y = self.snake.snake_body[segment - 1].ycor()
             self.snake.snake_body[segment].goto(new_x, new_y)
 
-        # move the head of snake
+        # Move the head of the snake
         self.snake.forward(self.FOWARD_AMOUNT)
 
+    # --- Game Loop ---
     def game_loop(self):
-        """Runs the game loop updating the screen and checking all logic."""
-
+        """
+        The main game loop responsible for updating the screen, processing game logic,
+        and handling frame rate.
+        """
         self.frame_counter += 1
-        self.screen.update()
+        self.screen.update()  # Update the screen for rendering
 
+        # Process game logic at a lower frequency (LOGIC_FPS)
         if self.frame_counter % self.render_per_logic == 0:
             if self.keys_list:
-                self.keys_list.pop(0)
+                self.keys_list.pop(0)  # Process one key press per logic frame
             self.move_snake()
             self.check_all_colisions()
 
+        # Continue the game loop if the game is still active
         if self.is_game_on:
             self.screen.ontimer(
                 self.game_loop,
-                round(1000 / 120),  # 120 FPS
+                round(1000 / self.RENDER_FPS),  # Schedule next frame based on RENDER_FPS
             )
 
 
+# --- Game Initialization ---
+# Create an instance of the Game_Engine to start the game
 a = Game_Engine(DEBUG=True)
 
-
+# Keep the turtle graphics window open until manually closed
 a.screen.mainloop()
