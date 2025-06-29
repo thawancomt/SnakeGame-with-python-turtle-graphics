@@ -189,3 +189,19 @@ def create_snake_body(self):
     for _ in range(self.INITIAL_LENGTH):
         self.increase_snake_length()
 ```
+
+## 9 Snake blink green on eat
+- **File** ``SnakeGame.py`
+
+```python
+    self.FLASH_DURATION = 0.5 # Duration of blink
+
+
+    def  trigger_flash(self):
+        # called when snake colid with food
+    
+    def handle_flash_effect(self):
+        # handle if actual time is within the interval to the end of blink
+```
+- **Attention** `trigger_flash` add a new property to the game instance, **`flash_end_time`** that is the time in ms when the blink
+effect is supposed to end, therefore, don´t try to manipulate or check this property in other parts of code, or if you need to, make sure you do it safely using `hasattr`

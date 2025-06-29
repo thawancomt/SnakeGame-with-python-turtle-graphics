@@ -1,5 +1,5 @@
 import random
-import turtle
+import time
 from snake import Snake
 from food import Food
 from score import Score
@@ -30,117 +30,134 @@ class Game_Engine:
         self.FOWARD_AMOUNT = 20
 
         # FPS settings:
-        self.RENDER_FPS = 60  # Frames per second
-        self.LOGIC_FPS = 10  # Logic per second / How many times the game logic is processed per second example move snake
+        self.RENDER_FPS = 60  # Frames per second for rendering
+        self.LOGIC_FPS = 15   # Logic updates per second (snake movement speed)
         self.frame_counter = 0
 
         self.render_per_logic = self.RENDER_FPS / self.LOGIC_FPS
+
+        # --- New attributes for non-blocking flash effect ---
+        self.is_flashing = False
+        self.flash_end_time = 0
+        self.FLASH_DURATION = 0.5  # Flash for 0.5 seconds
 
         # Game Screen
         self.game_screen = Game_Screen()
         self.screen = self.game_screen.screen
 
+        # Display the start screen and wait for user input to begin the game
         self.show_start_screen()
 
+    # --- Game State Management ---
     def show_start_screen(self):
+        """Displays the initial start screen and sets up input for starting the game."""
         self.game_screen.show_start_screen(self.start_game)
 
     def start_game(self):
-        """Initializes the game state and starts the game loop."""
+        """Initializes the game state and starts the main game loop."""
         self.screen.clear()
-        self.screen.tracer(0)
+        self.screen.tracer(0)  # Turn off automatic screen updates
         self.game_screen.draw_border()
 
         self.is_game_on = True
+        self.is_flashing = False # Reset flashing state on new game
 
         self.screen.title("Snake Game")
-        self.screen.bgcolor("#1fdb83")
+        self.screen.bgcolor("#1a1a1a")
 
-        # Create Snake
+        # Initialize game entities
         self.snake = Snake()
-
-        # Food
         self.food = Food()
         self.positionate_food()
-
-        # Score
         self.score = Score()
-
         self.score.write_score()
-
         self.game_controls = Game_Controller(self.screen, self.snake)
         self.keys_list = self.game_controls.keys_pressed
 
-        self.is_game_on = True
-
+        # Begin the game loop
         self.game_loop()
 
-    def increase_player_point(self):
-        """Increases the player's score by 1 and updates the score display."""
-        self.score.increase_score()
-        self.score.update_score()
-
-    def positionate_food(self):
-        """Places the food at a random position on the screen."""
-        new_x = random.randint(
-            round(self.game_screen.bounding_box_limit["width"] * -1),
-            round(self.game_screen.bounding_box_limit["width"]),
-        )
-        new_y = random.randint(
-            round(self.game_screen.bounding_box_limit["height"] * -1),
-            round(self.game_screen.bounding_box_limit["height"]),
-        )
-        self.food.goto(new_x, new_y)
-
-        if self.DEBUG:
-            print(f"Food position: {self.food.position()}")
-
     def set_game_over(self):
-        """Ends the game and displays the game over screen."""
-
+        """Ends the game, saves the high score, and displays the game over screen."""
+        self.is_game_on = False # Stop the game loop immediately
         self.screen.bgcolor("black")
         self.screen.title("Game Over")
 
         self.score.save_high_score()
 
-        # Hide the snake and food
+        # Hide game entities
         self.snake.hideturtle()
         self.food.hideturtle()
-
         for segment in self.snake.snake_body:
             segment.hideturtle()
 
         self.screen.clear()
 
-        # TODO: Show game over screen with score and high score
-        self.game_screen.show_game_over_screen(score=self.score.score, callback=lambda: self.start_game())
+        # Show game over screen with option to restart
+        self.game_screen.show_game_over_screen(
+            score=self.score.score, callback=lambda: self.start_game()
+        )
 
-        self.is_game_on = False
+    # --- Game Logic ---
+    def increase_player_point(self):
+        """Increases the player's score and updates the display."""
+        self.score.increase_score()
+        self.score.update_score()
 
+    def positionate_food(self):
+        """Places the food at a random position within the game boundaries."""
+        # This ensures food doesn't spawn on a snake segment
+        while True:
+            new_x = random.randrange(
+                int(self.game_screen.bounding_box_limit["width"] * -1) + 20,
+                int(self.game_screen.bounding_box_limit["width"]) - 20,
+                self.FOWARD_AMOUNT
+            )
+            new_y = random.randrange(
+                int(self.game_screen.bounding_box_limit["height"] * -1) + 20,
+                int(self.game_screen.bounding_box_limit["height"]) - 20,
+                self.FOWARD_AMOUNT
+            )
+            self.food.goto(new_x, new_y)
+
+            # Check if the food position is on the snake
+            is_on_snake = False
+            for segment in self.snake.snake_body:
+                if self.food.distance(segment) < 10:
+                    is_on_snake = True
+                    break
+            
+            if not is_on_snake:
+                break # Found a valid position
+
+        if self.DEBUG:
+            print(f"Food position: {self.food.position()}")
+
+    # --- Collision Detection ---
     def check_colision_with_food(self):
-        """Checks for collision between the snake and the food."""
+        """Checks for collision between the snake's head and the food."""
         if self.snake.distance(self.food) < 15:
             self.increase_player_point()
             self.positionate_food()
             self.snake.increase_snake_length()
+            # --- Trigger the flash effect instead of blocking ---
+            self.trigger_flash()
 
     def check_colision_with_border(self):
-        """Checks for collision between the snake and the screen border."""
+        """Checks for collision between the snake's head and the screen borders."""
+        head = self.snake
         if (
-            self.snake.xcor() > self.game_screen.bounding_box_limit["width"]
-            or self.snake.xcor() < -self.game_screen.bounding_box_limit["width"]
-        ):
-            self.set_game_over()
-        elif (
-            self.snake.ycor() > self.game_screen.bounding_box_limit["height"]
-            or self.snake.ycor() < -self.game_screen.bounding_box_limit["height"]
+            head.xcor() >= self.game_screen.bounding_box_limit["width"]
+            or head.xcor() <= -self.game_screen.bounding_box_limit["width"]
+            or head.ycor() >= self.game_screen.bounding_box_limit["height"]
+            or head.ycor() <= -self.game_screen.bounding_box_limit["height"]
         ):
             self.set_game_over()
 
     def check_colision_with_tail(self):
-        """Checks for collision between the snake and its own tail."""
+        """Checks for collision between the snake's head and its own body segments."""
         for segment in self.snake.snake_body[1:]:
-            if round(self.snake.distance(segment)) < self.FOWARD_AMOUNT:
+            if self.snake.distance(segment) < 10:
                 if self.DEBUG:
                     print(
                         f"Collision with tail at position: {segment.position()}, distance: {self.snake.distance(segment)}, snake position: {self.snake.position()}"
@@ -148,45 +165,88 @@ class Game_Engine:
                 self.set_game_over()
 
     def check_all_colisions(self) -> None:
-        """Checks for all possible collisions in the game."""
+        """Orchestrates all collision checks (tail, border, food)."""
+        # Checks are ordered by importance. Tail/Border collision ends the game.
         self.check_colision_with_tail()
+        # A guard to prevent further checks if game is over
+        if not self.is_game_on: return
         self.check_colision_with_border()
+        if not self.is_game_on: return
         self.check_colision_with_food()
 
+
+    # --- Snake Movement & Effects ---
     def move_snake(self):
-        """Moves the snake forward and checks for collisions."""
+        """Moves the snake forward by updating the positions of its segments."""
+        for segment_num in range(len(self.snake.snake_body) - 1, 0, -1):
+            new_x = self.snake.snake_body[segment_num - 1].xcor()
+            new_y = self.snake.snake_body[segment_num - 1].ycor()
+            self.snake.snake_body[segment_num].goto(new_x, new_y)
 
-        for segment in range(len(self.snake.snake_body) - 1, 0, -1):
-            new_x = self.snake.snake_body[segment - 1].xcor()
-            new_y = self.snake.snake_body[segment - 1].ycor()
-            self.snake.snake_body[segment].goto(new_x, new_y)
-
-        # move the head of snake
+        # Move the head of the snake
         self.snake.forward(self.FOWARD_AMOUNT)
 
+    def  trigger_flash(self):
+        """Activates the flashing state and sets the end time."""
+        self.is_flashing = True
+        self.flash_end_time = time.time() + self.FLASH_DURATION
+        # Set the color immediately on trigger
+        for segment in self.snake.snake_body:
+            segment.color("#1bd060") # Bright green
+
+    def handle_flash_effect(self):
+        """Manages the snake's color during the flash effect.
+        This runs every frame, not just on logic ticks."""
+        if self.is_flashing:
+            # Check if the flash duration has passed
+            if time.time() > self.flash_end_time:
+                self.is_flashing = False
+                # Reset color to normal
+                for segment in self.snake.snake_body:
+                    segment.color("white")
+                    
+            else:
+                 # Ensure color stays green during the flash
+                for segment in self.snake.snake_body:
+                    segment.color("#1bd060")
+
+
+    # --- Game Loop ---
     def game_loop(self):
-        """Runs the game loop updating the screen and checking all logic."""
+        """
+        The main game loop, responsible for updating the screen, processing game logic,
+        and handling frame rate.
+        """
+        # This check is crucial. If game is over, the loop stops calling itself.
+        if not self.is_game_on:
+            return
 
         self.frame_counter += 1
-        self.screen.update()
 
+        # --- Logic that runs every RENDER frame ---
+        self.handle_flash_effect() # Manage the visual effect smoothly
 
+        # --- Logic that runs at a slower, controlled rate (LOGIC_FPS) ---
         if self.frame_counter % self.render_per_logic == 0:
             if self.keys_list:
+                # Process only the most recent key press to avoid strange turns
                 self.keys_list.pop(0)
             self.move_snake()
             self.check_all_colisions()
 
+        # Update the screen to show all changes made in this frame
         self.screen.update()
 
-        if self.is_game_on:
-            self.screen.ontimer(
-                self.game_loop,
-                round(1000 / 120),  # 120 FPS
-            )
+        # Schedule the next iteration of the game loop
+        self.screen.ontimer(
+            self.game_loop,
+            round(1000 / self.RENDER_FPS)
+        )
 
 
-a = Game_Engine(DEBUG=True)
-
-
-a.screen.mainloop()
+# --- Game Initialization ---
+if __name__ == "__main__":
+    # Create an instance of the Game_Engine to start the game
+    game = Game_Engine(DEBUG=True)
+    # Keep the turtle graphics window open
+    game.screen.mainloop()
