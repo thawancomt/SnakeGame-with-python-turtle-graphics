@@ -1,4 +1,5 @@
 import random
+import time
 from snake import Snake
 from food import Food
 from score import Score
@@ -56,7 +57,7 @@ class Game_Engine:
         self.is_game_on = True
 
         self.screen.title("Snake Game")
-        self.screen.bgcolor("#1fdb83")
+        self.screen.bgcolor("#1a1a1a")
 
         # Initialize game entities
         self.snake = Snake()
@@ -117,6 +118,16 @@ class Game_Engine:
             self.increase_player_point()
             self.positionate_food()
             self.snake.increase_snake_length()
+
+            for segment in self.snake.snake_body:
+                segment.color("#1bd060")
+                self.screen.update()  # Update the screen to reflect the color change
+                time.sleep(0.02)  # Add a slight delay for visual effect
+
+            for segment in self.snake.snake_body:
+                segment.color("white")
+                self.screen.update()  # Update the screen to reflect the color change
+                time.sleep(0.02)
 
     def check_colision_with_border(self):
         """Checks for collision between the snake's head and the screen borders."""

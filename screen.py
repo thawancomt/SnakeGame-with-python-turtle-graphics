@@ -17,7 +17,6 @@ class Game_Screen:
         self.screen.title("Snake Game")
         self.screen.tracer(0)
 
-        self.screen.bgcolor("blue")
         self.screen.screensize(700, 700)
         self.screen.setup(
             width=self.screen.screensize()[0], height=self.screen.screensize()[1]
@@ -48,7 +47,7 @@ class Game_Screen:
 
         self.screen.tracer(0)
 
-        self.screen.bgcolor("#1fdb83")
+        self.screen.bgcolor("#262626")
 
         self.screen.title("Snake Game")
 
@@ -59,7 +58,7 @@ class Game_Screen:
             title_turtle = turtle.Turtle()
             title_turtle.penup()
             title_turtle.goto(0, 100)
-            title_turtle.color("white")
+            title_turtle.color("#787878")
             title_turtle.write(
                 "SNAKE GAME",
                 align="center",
@@ -71,14 +70,14 @@ class Game_Screen:
             start_instructions = turtle.Turtle()
             start_instructions.penup()
             start_instructions.goto(0, 0)
-            start_instructions.color("yellow")
+            start_instructions.color("#d3ed2d")
             start_instructions.write(
                 "Press Enter to Start or Q to Quit",
                 align="center",
                 font=("Press Start 2P", 24, "normal"),
             )
             start_instructions.goto(0, -40)
-            start_instructions.color("white")
+            start_instructions.color("#4f4f4f")
             start_instructions.write(
                 "Use Arrow Keys to Control the Snake",
                 align="center",
@@ -114,7 +113,7 @@ class Game_Screen:
 
         self.screen.clear()
         self.screen.tracer(0)
-        self.screen.bgcolor("black")
+        self.screen.bgcolor("#1A1A1A")
         self.screen.title("Game Over")
 
         def create_game_over_text_and_animation():
@@ -160,7 +159,7 @@ class Game_Screen:
         """Draws the border of the game screen."""
         self.border = turtle.Turtle()
         self.border.hideturtle()
-        self.border.color("white")
+        self.border.color("#22493b")
         self.border.penup()
         self.border.goto(
             self.bounding_box_limit["width"], self.bounding_box_limit["height"]

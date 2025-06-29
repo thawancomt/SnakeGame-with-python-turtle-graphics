@@ -14,7 +14,7 @@ class Score(turtle.Turtle):
         self.hideturtle()
         self.penup()
         self.goto(0, 300)
-        self.color('white')
+        self.color('#595959')
         
         self.score = 0
         self.high_score = self.get_high_score()
